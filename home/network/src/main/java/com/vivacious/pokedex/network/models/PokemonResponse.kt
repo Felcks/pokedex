@@ -15,5 +15,5 @@ class PokemonResponse(
     val sprites: SpriteResponse,
 ) : Pokemon {
     override val image: String
-        get() = sprites.other.dreamWorld.frontDetault
+        get() = sprites.other.officialArtwork.frontDefault
 }

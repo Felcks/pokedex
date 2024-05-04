@@ -2,7 +2,7 @@ package com.vivacious.pokedex.network.models
 
 import com.google.gson.annotations.SerializedName
 
-data class DreamWorldSpriteResponse(
+data class OfficialArtworkResponse(
     @SerializedName("front_default")
-    val frontDetault: String
+    val frontDefault: String
 )

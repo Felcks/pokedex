@@ -1,13 +1,49 @@
 package com.vivacious.pokedex.pokemondetail
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
+import coil.compose.SubcomposeAsyncImage
+import com.vivacious.pokedex.R
+import com.vivacious.pokedex.domain.models.Pokemon
+import com.vivacious.pokedex.ui.theme.PokedexTheme
 
 @Composable
 fun PokemonDetailScreen(
@@ -15,14 +51,237 @@ fun PokemonDetailScreen(
     modifier: Modifier = Modifier,
     viewModel: PokemonDetailViewModel = hiltViewModel(),
 ) {
+    val state by viewModel.state.collectAsState()
+
+    LifecycleEventEffect(event = Lifecycle.Event.ON_CREATE) {
+        viewModel.handleScreenEvents(PokemonDetailEvent.LoadPokemon)
+    }
+
     Scaffold(
-        modifier = modifier
+        modifier = modifier.fillMaxSize()
     ) { innerPadding ->
+        Column(modifier = Modifier.padding(innerPadding)) {
+            when {
+                state.loading -> {
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
 
-        LaunchedEffect(key1 = "") {
-            viewModel.handleViewEvents(PokemonDetailEvent.LoadPokemon)
+                state.errorMessage != null -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            state.errorMessage ?: "Unexpected error",
+                            style = TextStyle(textAlign = TextAlign.Center),
+                            fontSize = 18.sp
+                        )
+                        Box(modifier = Modifier.padding(vertical = 8.dp))
+                        Button(onClick = { viewModel.handleScreenEvents(PokemonDetailEvent.LoadPokemon) }) {
+                            Text(stringResource(id = R.string.try_again))
+                        }
+                    }
+                }
+
+                state.pokemon != null -> {
+                    PokemonDetail(state.pokemon!!)
+                }
+            }
         }
-
-        Text("Pokemon Detail", Modifier.padding(innerPadding))
     }
 }
+
+@Composable
+fun PokemonDetail(pokemon: Pokemon, modifier: Modifier = Modifier) {
+    Column {
+        Row(
+            modifier = modifier
+                .clip(
+                    CircleShape.copy(
+                        bottomEnd = CornerSize(32.dp),
+                        bottomStart = CornerSize(32.dp),
+                        topStart = CornerSize(0.dp),
+                        topEnd = CornerSize(0.dp)
+                    )
+                )
+                .heightIn(min = 300.dp)
+                .fillMaxWidth()
+                .background(Color(147, 201, 172))
+        ) {
+            SubcomposeAsyncImage(
+                model = pokemon.image,
+                contentDescription = pokemon.name,
+                contentScale = ContentScale.Inside,
+                modifier = modifier
+                    .heightIn(min = 300.dp)
+                    .fillMaxWidth()
+            )
+        }
+        Spacer(modifier = Modifier.padding(top = 16.dp))
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+            Text(pokemon.name ?: "", fontSize = 26.sp, fontWeight = FontWeight.Bold)
+        }
+        Spacer(modifier = Modifier.padding(top = 8.dp))
+        Row(
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            for (type in pokemon.types) {
+                val color: String = elementColors[type.name] ?: "#777777"
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50))
+                        .background(Color(android.graphics.Color.parseColor(color)))
+                        .padding(horizontal = 32.dp, vertical = 2.dp)
+                ) {
+                    Text(type.name, color = Color.White)
+                }
+            }
+        }
+        Spacer(modifier = Modifier.padding(vertical = 16.dp))
+        Row(
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text((pokemon.weight / 10).toString() + " KG", fontSize = 22.sp)
+                Text("Weight")
+            }
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text((pokemon.height / 10).toString() + " M", fontSize = 22.sp)
+                Text("Height")
+            }
+        }
+        Spacer(modifier = Modifier.padding(vertical = 16.dp))
+        Column(
+            modifier
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                Text("Base Stats", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            }
+            Spacer(modifier = Modifier.padding(vertical = 4.dp))
+            for(status in pokemon.status) {
+                StatusView(status.stat.name, status.baseStat)
+            }
+        }
+    }
+}
+
+@Composable
+fun StatusView(name: String, value: Int, modifier: Modifier = Modifier) {
+    val statReference = statMap[name] ?: StatusReference(name, 150, Color.Magenta)
+
+    Row(
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+    ) {
+        Box(modifier = Modifier.width(48.dp)) {
+            Text(statReference.name.uppercase())
+        }
+        Spacer(modifier = Modifier.padding(horizontal = 8.dp))
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(50))
+                .background(Color.LightGray)
+                .fillMaxWidth()
+                .height(16.dp)
+        ) {
+            val percent = (value * 100) / statReference.maxValue
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(50))
+                    .background(statReference.color)
+                    .fillMaxWidth(fraction = percent * 0.01f)
+                    .height(16.dp),
+            )
+            Text(
+                "${value}/${statReference.maxValue}",
+                color = Color.White,
+                fontSize = 12.sp,
+                textAlign = TextAlign.Start,
+                style = TextStyle(
+                    fontSize = 12.sp,
+                    lineHeight = 16.sp,
+                    lineHeightStyle = LineHeightStyle(
+                        alignment = LineHeightStyle.Alignment.Center,
+                        trim = LineHeightStyle.Trim.None
+                    )
+                ),
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .wrapContentHeight()
+            )
+        }
+
+
+    }
+}
+
+@Preview
+@Composable
+private fun StatusViewPreview() {
+    PokedexTheme {
+        StatusView(name = "hp", value = 100)
+    }
+}
+
+val statMap = mapOf(
+    "hp" to StatusReference.HP(),
+    "attack" to StatusReference.ATK(),
+    "defense" to StatusReference.DEF(),
+    "speed" to StatusReference.SPD(),
+    "special-attack" to StatusReference.SATK(),
+    "special-defense" to StatusReference.SDEF(),
+)
+
+open class StatusReference(val name: String, val maxValue: Int, val color: Color) {
+    class HP : StatusReference("HP", 100, Color(214, 56, 69))
+    class ATK : StatusReference("ATK", 150, Color(253, 166, 41))
+    class DEF : StatusReference("DEF", 150, Color(0, 144, 234))
+    class SPD : StatusReference("SPD", 150, Color(144, 175, 198))
+    class SATK : StatusReference("SATK", 150, Color(157, 40, 155))
+    class SDEF : StatusReference("SDEF", 150, Color(17, 68, 68) )
+}
+
+val elementColors = mapOf(
+    "normal" to "#A8A77A",
+    "grass" to "#7AC74C",
+    "fire" to "#EE8130",
+    "water" to "#6390F0",
+    "electric" to "#F7D02C",
+    "grass" to "#7AC74C",
+    "ice" to "#96D9D6",
+    "fighting" to "#C22E28",
+    "poison" to "#A33EA1",
+    "ground" to "#E2BF65",
+    "flying" to "#A98FF3",
+    "psychic" to "#F95587",
+    "bug" to "#A6B91A",
+    "rock" to "#B6A136",
+    "ghost" to "#735797",
+    "dragon" to "#6F35FC",
+    "dark:" to "#705746",
+    "steel:" to "#B7B7CE",
+    "fairy" to "#D685AD",
+
+    )
