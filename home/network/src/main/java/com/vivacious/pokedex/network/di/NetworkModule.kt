@@ -53,7 +53,7 @@ object NetworkModule {
     @Singleton
     @PokedexRetrofit
     fun provideRetrofit(
-        @PokedexRetrofit okHttpClient: OkHttpClient,
+        @PokedexOkHttpClient okHttpClient: OkHttpClient,
     ): Retrofit {
         return Retrofit.Builder()
             .client(okHttpClient)

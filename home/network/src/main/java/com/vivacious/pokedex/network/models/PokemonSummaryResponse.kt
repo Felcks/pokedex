@@ -8,5 +8,5 @@ data class PokemonSummaryResponse(
     override val url: String
 ) : PokemonSummary {
     override val image: String
-        get() = POKEMON_IMAGE_BASE_URL + url.split("/").last()
+        get() = POKEMON_IMAGE_BASE_URL + url.substring(0, url.length-1).split("/").last() + ".png"
 }
