@@ -2,8 +2,10 @@ package com.vivacious.pokedex.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -11,24 +13,34 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.SubcomposeAsyncImage
+import com.vivacious.pokedex.R
 import com.vivacious.pokedex.TopBar
 import com.vivacious.pokedex.domain.models.PokemonSummary
 import com.vivacious.pokedex.ui.theme.PokedexTheme
@@ -40,12 +52,51 @@ fun HomeScreen(
 ) {
     val state by homeScreenViewModel.state.collectAsStateWithLifecycle()
 
+    LifecycleEventEffect(event = Lifecycle.Event.ON_CREATE) {
+        homeScreenViewModel.handleScreenEvents(HomeScreenEvent.GetFreshPokemons)
+    }
+
     Scaffold(
-        topBar = { TopBar(title = "Pokedex", modifier = Modifier.padding(top = 56.dp, start = 32.dp)) },
+        topBar = {
+            TopBar(
+                title = stringResource(id = R.string.home_scree_title),
+                modifier = Modifier.padding(top = 48.dp, start = 32.dp)
+            )
+        },
         modifier = modifier.fillMaxSize()
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
-            PokemonList(pokemons = state.pokemons)
+            when {
+                state.loading -> {
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                state.errorMessage != null -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(state.errorMessage ?: "", style = TextStyle(textAlign = TextAlign.Center), fontSize = 18.sp)
+                        Box(modifier = Modifier.padding(vertical = 8.dp))
+                        Button(onClick = { homeScreenViewModel.handleScreenEvents(HomeScreenEvent.GetFreshPokemons) }) {
+                            Text(stringResource(id = R.string.try_again))
+                        }
+                    }
+                }
+
+                state.pokemons.isNotEmpty() -> {
+                    PokemonList(pokemons = state.pokemons)
+                }
+            }
         }
     }
 }
@@ -84,7 +135,11 @@ fun PokemonCard(pokemonSummary: PokemonSummary, modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .clip(CircleShape.copy(all = CornerSize(16.dp)))
             )
-            Text(pokemonSummary.name.capitalize(Locale.current), fontSize = 22.sp, modifier = Modifier.padding(horizontal = 8.dp))
+            Text(
+                pokemonSummary.name.capitalize(Locale.current),
+                fontSize = 22.sp,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
         }
     }
 }

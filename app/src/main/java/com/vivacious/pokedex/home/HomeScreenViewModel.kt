@@ -20,18 +20,35 @@ class HomeScreenViewModel @Inject constructor(
     private val getPokemonsUseCase: GetPokemonsUseCase,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(HomeScreenState(pokemons = MOCK_POKEDEX))
+    private val _state = MutableStateFlow(HomeScreenState())
     val state = _state.asStateFlow()
 
-    init {
+    private var currentPage = 0
+
+    fun handleScreenEvents(event: HomeScreenEvent) {
+        when (event) {
+            HomeScreenEvent.GetFreshPokemons -> {
+                currentPage = 0
+                loadPokemons()
+
+            }
+            HomeScreenEvent.LoadMorePokemons -> {
+                currentPage += 1
+                loadPokemons()
+            }
+        }
+    }
+
+    private fun loadPokemons() {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = getPokemonsUseCase.invoke(0)
-            result.collectLatest { it ->
-                it.onSuccess {
-                    _state.value = _state.value.copy(pokemons = it ?: listOf())
+            _state.value = _state.value.copy(loading = true, errorMessage = null)
+            val resource = getPokemonsUseCase.invoke(currentPage)
+            resource.collectLatest { result ->
+                result.onSuccess {
+                    _state.value = _state.value.copy(pokemons = it ?: listOf(), loading = false, errorMessage = null)
                 }
-                it.onFailure {
-                    Log.i("script2", "aaaa")
+                result.onFailure {
+                    _state.value = _state.value.copy(errorMessage = it, loading = false)
                 }
             }
         }
