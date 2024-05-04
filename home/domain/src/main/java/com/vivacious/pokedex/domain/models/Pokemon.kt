@@ -3,7 +3,7 @@ package com.vivacious.pokedex.domain.models
 interface Pokemon {
     val id: Int
     val name: String
-    val width: Int
+    val weight: Int
     val height: Int
     val image: String
     val abilities: List<Ability>

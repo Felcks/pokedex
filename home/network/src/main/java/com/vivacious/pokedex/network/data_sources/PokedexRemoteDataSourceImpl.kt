@@ -4,6 +4,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.vivacious.pokedex.domain.data_sources.PokedexRemoteDataSource
+import com.vivacious.pokedex.domain.models.Pokemon
 import com.vivacious.pokedex.domain.models.PokemonSummary
 import com.vivacious.pokedex.domain.wrapper.Resource
 import com.vivacious.pokedex.network.api.PokedexService
@@ -22,8 +23,11 @@ class PokedexRemoteDataSourceImpl @Inject constructor(private val pokedexService
             initialKey = 1,
             pagingSourceFactory = { PokedexPagingSource(pokedexService = pokedexService, pageSize = pageSize) }
         ).flow
-        /*return safeApiCall(Dispatchers.IO) {
-             pokedexService.getPokemons(limit, offset).body()?.results
-        }*/
+    }
+
+    override suspend fun getPokemon(pokemonId: String): Flow<Resource<Pokemon?>> {
+        return safeApiCall(Dispatchers.IO) {
+            pokedexService.getPokemon(pokemonId).body()
+        }
     }
 }
