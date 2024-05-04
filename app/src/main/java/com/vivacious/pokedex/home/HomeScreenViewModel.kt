@@ -3,6 +3,9 @@ package com.vivacious.pokedex.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import com.vivacious.pokedex.domain.models.PokemonSummary
 import com.vivacious.pokedex.domain.usecases.GetPokemonsUseCase
 import com.vivacious.pokedex.domain.wrapper.onFailure
 import com.vivacious.pokedex.domain.wrapper.onSuccess
@@ -20,8 +23,8 @@ class HomeScreenViewModel @Inject constructor(
     private val getPokemonsUseCase: GetPokemonsUseCase,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(HomeScreenState())
-    val state = _state.asStateFlow()
+    private val _pokemons: MutableStateFlow<PagingData<PokemonSummary>> = MutableStateFlow(PagingData.empty())
+    val pokemons = _pokemons.asStateFlow()
 
     private var currentPage = 0
 
@@ -41,15 +44,8 @@ class HomeScreenViewModel @Inject constructor(
 
     private fun loadPokemons() {
         viewModelScope.launch(Dispatchers.IO) {
-            _state.value = _state.value.copy(loading = true, errorMessage = null)
-            val resource = getPokemonsUseCase.invoke(currentPage)
-            resource.collectLatest { result ->
-                result.onSuccess {
-                    _state.value = _state.value.copy(pokemons = it ?: listOf(), loading = false, errorMessage = null)
-                }
-                result.onFailure {
-                    _state.value = _state.value.copy(errorMessage = it, loading = false)
-                }
+            getPokemonsUseCase.invoke(currentPage).cachedIn(viewModelScope).collectLatest {
+                _pokemons.value = it
             }
         }
     }

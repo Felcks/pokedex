@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -33,24 +35,33 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import coil.compose.SubcomposeAsyncImage
 import com.vivacious.pokedex.R
 import com.vivacious.pokedex.TopBar
 import com.vivacious.pokedex.domain.models.PokemonSummary
+import com.vivacious.pokedex.domain.wrapper.Resource
 import com.vivacious.pokedex.ui.theme.PokedexTheme
+import kotlinx.coroutines.flow.flowOf
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
     homeScreenViewModel: HomeScreenViewModel = hiltViewModel(),
 ) {
-    val state by homeScreenViewModel.state.collectAsStateWithLifecycle()
+    val pokemons = homeScreenViewModel.pokemons.collectAsLazyPagingItems()
 
     LifecycleEventEffect(event = Lifecycle.Event.ON_CREATE) {
         homeScreenViewModel.handleScreenEvents(HomeScreenEvent.GetFreshPokemons)
@@ -67,7 +78,7 @@ fun HomeScreen(
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             when {
-                state.loading -> {
+                pokemons.loadState.refresh is LoadState.Loading -> {
                     Row(
                         modifier = Modifier.fillMaxSize(),
                         horizontalArrangement = Arrangement.Center,
@@ -77,7 +88,7 @@ fun HomeScreen(
                     }
                 }
 
-                state.errorMessage != null -> {
+                pokemons.loadState.refresh is LoadState.Error -> {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -85,7 +96,7 @@ fun HomeScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Text(state.errorMessage ?: "", style = TextStyle(textAlign = TextAlign.Center), fontSize = 18.sp)
+                        Text( (pokemons.loadState.refresh as LoadState.Error).error.message ?: "Unexpected error", style = TextStyle(textAlign = TextAlign.Center), fontSize = 18.sp)
                         Box(modifier = Modifier.padding(vertical = 8.dp))
                         Button(onClick = { homeScreenViewModel.handleScreenEvents(HomeScreenEvent.GetFreshPokemons) }) {
                             Text(stringResource(id = R.string.try_again))
@@ -93,8 +104,8 @@ fun HomeScreen(
                     }
                 }
 
-                state.pokemons.isNotEmpty() -> {
-                    PokemonList(pokemons = state.pokemons)
+                pokemons.itemCount > 0 -> {
+                    PokemonList(pokemons = pokemons)
                 }
             }
         }
@@ -103,15 +114,22 @@ fun HomeScreen(
 
 
 @Composable
-fun PokemonList(pokemons: List<PokemonSummary>, modifier: Modifier = Modifier) {
+fun PokemonList(pokemons: LazyPagingItems<PokemonSummary>, modifier: Modifier = Modifier) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
-        contentPadding = PaddingValues(8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        contentPadding = PaddingValues(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier
     ) {
-        items(pokemons) {
-            PokemonCard(pokemonSummary = it, Modifier.padding(horizontal = 8.dp, vertical = 8.dp))
+        items(
+            count = pokemons.itemCount,
+            key = pokemons.itemKey { it.hashCode() },
+        ) { index: Int ->
+            val pokemon = pokemons[index]
+            if(pokemon != null) {
+                PokemonCard(pokemonSummary = pokemon, Modifier)
+            }
         }
     }
 }
@@ -120,7 +138,7 @@ fun PokemonList(pokemons: List<PokemonSummary>, modifier: Modifier = Modifier) {
 @Composable
 private fun PokemonListPreview() {
     MaterialTheme {
-        PokemonList(pokemons = MOCK_POKEDEX)
+        PokemonList(pokemons = flowOf(PagingData.from(MOCK_POKEDEX)).collectAsLazyPagingItems())
     }
 }
 
@@ -134,6 +152,7 @@ fun PokemonCard(pokemonSummary: PokemonSummary, modifier: Modifier = Modifier) {
                 contentScale = ContentScale.FillBounds,
                 modifier = Modifier
                     .clip(CircleShape.copy(all = CornerSize(16.dp)))
+                    .heightIn(min = 150.dp)
             )
             Text(
                 pokemonSummary.name.capitalize(Locale.current),

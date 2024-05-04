@@ -82,6 +82,10 @@ dependencies {
     implementation (libs.androidx.lifecycle.viewmodel.ktx)
     implementation (libs.androidx.lifecycle.runtime.compose)
 
+    implementation (libs.androidx.paging.runtime)
+    testImplementation (libs.androidx.paging.common)
+    implementation (libs.androidx.paging.compose)
+
     implementation(project(":home:domain"))
     implementation(project(":home:network"))
 }

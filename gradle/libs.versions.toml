@@ -21,6 +21,7 @@ hilt-work = "1.2.0"
 appcompat = "1.6.1"
 material = "1.12.0"
 work-runtime-ktx = "2.9.0"
+paging-runtime = "3.2.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -70,6 +71,9 @@ androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-ru
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleRuntimeKtx" }
 
+androidx-paging-common = { module = "androidx.paging:paging-common", version.ref = "paging-runtime" }
+androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "paging-runtime" }
+androidx-paging-runtime = { module = "androidx.paging:paging-runtime", version.ref = "paging-runtime" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
