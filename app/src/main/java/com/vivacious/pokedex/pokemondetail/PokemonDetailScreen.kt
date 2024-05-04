@@ -6,19 +6,28 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -58,7 +68,8 @@ fun PokemonDetailScreen(
     }
 
     Scaffold(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize(),
+        contentWindowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp),
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             when {
@@ -93,7 +104,7 @@ fun PokemonDetailScreen(
                 }
 
                 state.pokemon != null -> {
-                    PokemonDetail(state.pokemon!!)
+                    PokemonDetail(state.pokemon!!, onBackClick)
                 }
             }
         }
@@ -101,9 +112,9 @@ fun PokemonDetailScreen(
 }
 
 @Composable
-fun PokemonDetail(pokemon: Pokemon, modifier: Modifier = Modifier) {
+fun PokemonDetail(pokemon: Pokemon, onBackClick: () -> Unit, modifier: Modifier = Modifier) {
     Column {
-        Row(
+        Box(
             modifier = modifier
                 .clip(
                     CircleShape.copy(
@@ -117,6 +128,32 @@ fun PokemonDetail(pokemon: Pokemon, modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .background(Color(147, 201, 172))
         ) {
+            Row(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp, start = 8.dp, end = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                IconButton(
+                    onClick = { onBackClick.invoke()  },
+                    modifier = modifier
+                        .wrapContentSize()
+                ) {
+                    Icon(
+                        Icons.AutoMirrored.Default.ArrowBack,
+                        contentDescription = "",
+                        tint = Color.White,
+                        modifier = modifier
+                            .wrapContentSize()
+                    )
+                }
+                Text(
+                    "#${pokemon.id}",
+                    fontSize = 22.sp,
+                    color = Color.White,
+                )
+            }
             SubcomposeAsyncImage(
                 model = pokemon.image,
                 contentDescription = pokemon.name,
@@ -177,7 +214,7 @@ fun PokemonDetail(pokemon: Pokemon, modifier: Modifier = Modifier) {
                 Text("Base Stats", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
             Spacer(modifier = Modifier.padding(vertical = 4.dp))
-            for(status in pokemon.status) {
+            for (status in pokemon.status) {
                 StatusView(status.stat.name, status.baseStat)
             }
         }
@@ -260,7 +297,7 @@ open class StatusReference(val name: String, val maxValue: Int, val color: Color
     class DEF : StatusReference("DEF", 150, Color(0, 144, 234))
     class SPD : StatusReference("SPD", 150, Color(144, 175, 198))
     class SATK : StatusReference("SATK", 150, Color(157, 40, 155))
-    class SDEF : StatusReference("SDEF", 150, Color(17, 68, 68) )
+    class SDEF : StatusReference("SDEF", 150, Color(17, 68, 68))
 }
 
 val elementColors = mapOf(
