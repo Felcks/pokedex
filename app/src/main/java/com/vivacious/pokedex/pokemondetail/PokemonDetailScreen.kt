@@ -7,13 +7,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
@@ -22,12 +20,10 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,10 +34,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -92,7 +89,7 @@ fun PokemonDetailScreen(
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            state.errorMessage ?: "Unexpected error",
+                            state.errorMessage ?: stringResource(id = R.string.unexpected_error_message),
                             style = TextStyle(textAlign = TextAlign.Center),
                             fontSize = 18.sp
                         )
@@ -165,7 +162,7 @@ fun PokemonDetail(pokemon: Pokemon, onBackClick: () -> Unit, modifier: Modifier 
         }
         Spacer(modifier = Modifier.padding(top = 16.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-            Text(pokemon.name ?: "", fontSize = 26.sp, fontWeight = FontWeight.Bold)
+            Text(pokemon.name.capitalize(Locale.current), fontSize = 26.sp, fontWeight = FontWeight.Bold)
         }
         Spacer(modifier = Modifier.padding(top = 8.dp))
         Row(
@@ -190,12 +187,12 @@ fun PokemonDetail(pokemon: Pokemon, onBackClick: () -> Unit, modifier: Modifier 
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text((pokemon.weight / 10).toString() + " KG", fontSize = 22.sp)
-                Text("Weight")
+                Text((pokemon.weight / 10.0).toString() + " KG", fontSize = 22.sp)
+                Text(stringResource(id = R.string.weight))
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text((pokemon.height / 10).toString() + " M", fontSize = 22.sp)
-                Text("Height")
+                Text((pokemon.height / 10.0).toString() + " M", fontSize = 22.sp)
+                Text(stringResource(id = R.string.height))
             }
         }
         Spacer(modifier = Modifier.padding(vertical = 16.dp))
@@ -269,8 +266,6 @@ fun StatusView(name: String, value: Int, modifier: Modifier = Modifier) {
                     .wrapContentHeight()
             )
         }
-
-
     }
 }
 
