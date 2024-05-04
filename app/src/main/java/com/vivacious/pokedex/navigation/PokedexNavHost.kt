@@ -6,7 +6,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.vivacious.pokedex.home.HomeScreenNavigationRoute
 import com.vivacious.pokedex.home.homeScreen
-import com.vivacious.pokedex.home.navigateToHomeScreen
+import com.vivacious.pokedex.pokemondetail.navigateToPokemonDetail
+import com.vivacious.pokedex.pokemondetail.pokemonDetail
 
 @Composable
 fun PokedexNavHost(modifier: Modifier = Modifier) {
@@ -14,7 +15,8 @@ fun PokedexNavHost(modifier: Modifier = Modifier) {
 
     NavHost(navController = navController, startDestination = HomeScreenNavigationRoute, modifier = modifier) {
         homeScreen(goToPokemonDetail = {
-            navController.navigateToHomeScreen()
+            navController.navigateToPokemonDetail(pokemonUrl = it)
         })
+        pokemonDetail(onBackClick = { navController.popBackStack() })
     }
 }
