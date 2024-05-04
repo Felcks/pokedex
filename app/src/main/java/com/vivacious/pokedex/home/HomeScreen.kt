@@ -1,12 +1,14 @@
 package com.vivacious.pokedex.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -60,6 +62,7 @@ import kotlinx.coroutines.flow.flowOf
 fun HomeScreen(
     modifier: Modifier = Modifier,
     homeScreenViewModel: HomeScreenViewModel = hiltViewModel(),
+    goToPokemonDetail: (pokemonUrl: String) -> Unit,
 ) {
     val pokemons = homeScreenViewModel.pokemons.collectAsLazyPagingItems()
 
@@ -105,7 +108,7 @@ fun HomeScreen(
                 }
 
                 pokemons.itemCount > 0 -> {
-                    PokemonList(pokemons = pokemons)
+                    PokemonList(pokemons = pokemons, onPokemonClick = goToPokemonDetail)
                 }
             }
         }
@@ -114,7 +117,7 @@ fun HomeScreen(
 
 
 @Composable
-fun PokemonList(pokemons: LazyPagingItems<PokemonSummary>, modifier: Modifier = Modifier) {
+fun PokemonList(pokemons: LazyPagingItems<PokemonSummary>, onPokemonClick: (pokemonUrl: String) -> Unit, modifier: Modifier = Modifier) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(16.dp),
@@ -128,7 +131,7 @@ fun PokemonList(pokemons: LazyPagingItems<PokemonSummary>, modifier: Modifier = 
         ) { index: Int ->
             val pokemon = pokemons[index]
             if(pokemon != null) {
-                PokemonCard(pokemonSummary = pokemon, Modifier)
+                PokemonCard(pokemonSummary = pokemon, onPokemonClick = onPokemonClick, modifier = Modifier)
             }
         }
     }
@@ -138,13 +141,15 @@ fun PokemonList(pokemons: LazyPagingItems<PokemonSummary>, modifier: Modifier = 
 @Composable
 private fun PokemonListPreview() {
     MaterialTheme {
-        PokemonList(pokemons = flowOf(PagingData.from(MOCK_POKEDEX)).collectAsLazyPagingItems())
+        PokemonList(pokemons = flowOf(PagingData.from(MOCK_POKEDEX)).collectAsLazyPagingItems(), onPokemonClick = {})
     }
 }
 
 @Composable
-fun PokemonCard(pokemonSummary: PokemonSummary, modifier: Modifier = Modifier) {
-    Card(modifier = modifier.background(Color.White)) {
+fun PokemonCard(pokemonSummary: PokemonSummary,  onPokemonClick: (pokemonUrl: String) -> Unit, modifier: Modifier = Modifier) {
+    Card(modifier = modifier.background(Color.White).clickable {
+        onPokemonClick.invoke(pokemonSummary.url)
+    }) {
         Column {
             SubcomposeAsyncImage(
                 model = pokemonSummary.image,
@@ -154,11 +159,14 @@ fun PokemonCard(pokemonSummary: PokemonSummary, modifier: Modifier = Modifier) {
                     .clip(CircleShape.copy(all = CornerSize(16.dp)))
                     .heightIn(min = 150.dp)
             )
-            Text(
-                pokemonSummary.name.capitalize(Locale.current),
-                fontSize = 22.sp,
-                modifier = Modifier.padding(horizontal = 8.dp)
-            )
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                Text(
+                    pokemonSummary.name.capitalize(Locale.current),
+                    fontSize = 22.sp,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+            }
+
         }
     }
 }
@@ -167,7 +175,7 @@ fun PokemonCard(pokemonSummary: PokemonSummary, modifier: Modifier = Modifier) {
 @Composable
 private fun PokemonCardPreview() {
     PokedexTheme {
-        PokemonCard(MOCK_POKEDEX.first())
+        PokemonCard(MOCK_POKEDEX.first(), onPokemonClick = {})
     }
 }
 

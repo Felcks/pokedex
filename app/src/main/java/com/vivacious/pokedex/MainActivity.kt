@@ -40,6 +40,7 @@ import com.vivacious.pokedex.domain.models.PokemonSummary
 import com.vivacious.pokedex.home.HomeScreen
 import com.vivacious.pokedex.home.MOCK_POKEDEX
 import com.vivacious.pokedex.home.PokemonList
+import com.vivacious.pokedex.navigation.PokedexNavHost
 import com.vivacious.pokedex.ui.theme.PokedexTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -50,7 +51,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PokedexTheme {
-                HomeScreen()
+                PokedexNavHost()
             }
         }
     }
