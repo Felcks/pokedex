@@ -42,6 +42,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.ui.test.junit4)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
@@ -53,6 +54,10 @@ dependencies {
     implementation (libs.androidx.paging.runtime)
     testImplementation (libs.androidx.paging.common)
     implementation (libs.androidx.paging.compose)
+
+    implementation(libs.mockk)
+    implementation(libs.coroutines.test)
+    implementation(libs.turbine)
 
     implementation(project(":home:domain"))
 }

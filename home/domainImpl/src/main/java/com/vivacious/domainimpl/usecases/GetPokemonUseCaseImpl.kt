@@ -10,6 +10,7 @@ import javax.inject.Inject
 class GetPokemonUseCaseImpl @Inject constructor(
     private val repositoryImpl: PokedexRepository
 ) : GetPokemonUseCase {
+
     override suspend fun invoke(pokemonId: String): Flow<Resource<Pokemon?>> {
         return repositoryImpl.getPokemon(pokemonId)
     }

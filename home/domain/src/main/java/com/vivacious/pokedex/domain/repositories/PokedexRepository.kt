@@ -7,6 +7,6 @@ import com.vivacious.pokedex.domain.wrapper.Resource
 import kotlinx.coroutines.flow.Flow
 
 interface PokedexRepository {
-    suspend fun getPokemons(page: Int = 1): Flow<PagingData<PokemonSummary>>
+    suspend fun getPokemons(): Flow<PagingData<PokemonSummary>>
     suspend fun getPokemon(pokemonId: String): Flow<Resource<Pokemon?>>
 }

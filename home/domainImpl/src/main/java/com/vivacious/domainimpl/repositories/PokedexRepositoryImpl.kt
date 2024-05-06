@@ -9,10 +9,11 @@ import com.vivacious.pokedex.domain.wrapper.Resource
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class PokedexRepositoryImpl @Inject constructor(private val pokedexRemoteDataSource: PokedexRemoteDataSource) :
-    PokedexRepository {
+class PokedexRepositoryImpl @Inject constructor(
+    private val pokedexRemoteDataSource: PokedexRemoteDataSource
+) : PokedexRepository {
 
-    override suspend fun getPokemons(page: Int): Flow<PagingData<PokemonSummary>> {
+    override suspend fun getPokemons(): Flow<PagingData<PokemonSummary>> {
         return pokedexRemoteDataSource.getPokemons(PAGE_SIZE)
     }
 

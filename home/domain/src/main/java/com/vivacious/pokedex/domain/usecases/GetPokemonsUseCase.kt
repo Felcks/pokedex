@@ -6,5 +6,5 @@ import com.vivacious.pokedex.domain.wrapper.Resource
 import kotlinx.coroutines.flow.Flow
 
 interface GetPokemonsUseCase {
-    suspend fun invoke(page: Int) : Flow<PagingData<PokemonSummary>>
+    suspend fun invoke() : Flow<PagingData<PokemonSummary>>
 }
