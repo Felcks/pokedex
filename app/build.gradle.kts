@@ -87,5 +87,6 @@ dependencies {
     implementation (libs.androidx.paging.compose)
 
     implementation(project(":home:domain"))
+    implementation(project(":home:domainImpl"))
     implementation(project(":home:network"))
 }

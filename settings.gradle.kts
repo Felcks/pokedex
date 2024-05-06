@@ -23,3 +23,4 @@ rootProject.name = "Pokedex"
 include(":app")
 include(":home:domain")
 include(":home:network")
+include(":home:domainImpl")
