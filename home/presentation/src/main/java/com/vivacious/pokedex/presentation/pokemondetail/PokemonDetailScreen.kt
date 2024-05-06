@@ -1,5 +1,9 @@
 package com.vivacious.pokedex.presentation.pokemondetail
 
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,10 +33,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -44,9 +52,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.drawable.toBitmap
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
+import androidx.palette.graphics.Palette
 import coil.compose.SubcomposeAsyncImage
 import com.vivacious.pokedex.domain.models.Pokemon
 import com.vivacious.pokedex.core.presentation.theme.PokedexTheme
@@ -89,7 +99,8 @@ fun PokemonDetailScreen(
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            state.errorMessage ?: stringResource(id = R.string.unexpected_error_message),
+                            state.errorMessage
+                                ?: stringResource(id = R.string.unexpected_error_message),
                             style = TextStyle(textAlign = TextAlign.Center),
                             fontSize = 18.sp
                         )
@@ -110,6 +121,9 @@ fun PokemonDetailScreen(
 
 @Composable
 fun PokemonDetail(pokemon: Pokemon, onBackClick: () -> Unit, modifier: Modifier = Modifier) {
+
+    var backgroundColor by remember { mutableStateOf(Color(147, 201, 172)) }
+
     Column {
         Box(
             modifier = modifier
@@ -123,7 +137,7 @@ fun PokemonDetail(pokemon: Pokemon, onBackClick: () -> Unit, modifier: Modifier 
                 )
                 .heightIn(min = 300.dp)
                 .fillMaxWidth()
-                .background(Color(147, 201, 172))
+                .background(backgroundColor)
         ) {
             Row(
                 modifier = modifier
@@ -133,7 +147,7 @@ fun PokemonDetail(pokemon: Pokemon, onBackClick: () -> Unit, modifier: Modifier 
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 IconButton(
-                    onClick = { onBackClick.invoke()  },
+                    onClick = { onBackClick.invoke() },
                     modifier = modifier
                         .wrapContentSize()
                 ) {
@@ -157,12 +171,23 @@ fun PokemonDetail(pokemon: Pokemon, onBackClick: () -> Unit, modifier: Modifier 
                 contentScale = ContentScale.Inside,
                 modifier = modifier
                     .heightIn(min = 300.dp)
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                onSuccess = { result ->
+                    val mutableBitmap = result.result.drawable.toBitmap(475, 475).copy(Bitmap.Config.RGBA_F16, false)
+                    val palette = Palette.from(mutableBitmap).generate()
+                     palette.swatches.firstOrNull()?.let {
+                         backgroundColor = Color(it.rgb)
+                     }
+                },
             )
         }
         Spacer(modifier = Modifier.padding(top = 16.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-            Text(pokemon.name.capitalize(Locale.current), fontSize = 26.sp, fontWeight = FontWeight.Bold)
+            Text(
+                pokemon.name.capitalize(Locale.current),
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
         Spacer(modifier = Modifier.padding(top = 8.dp))
         Row(

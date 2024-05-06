@@ -42,7 +42,7 @@ class HomeScreenViewModel @Inject constructor(
 
     private fun loadPokemons() {
         viewModelScope.launch(Dispatchers.IO) {
-            getPokemonsUseCase.invoke(currentPage).cachedIn(viewModelScope).collect {
+            getPokemonsUseCase.invoke().cachedIn(viewModelScope).collect {
                 _pokemons.value = it
             }
         }

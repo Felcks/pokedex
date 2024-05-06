@@ -1,6 +1,5 @@
 package com.vivacious.pokedex.presentation.pokemondetail
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -44,7 +43,6 @@ class PokemonDetailViewModel @Inject constructor(
                 getPokemonUseCase.invoke(it).collectLatest { result ->
                     result.onSuccess {
                         _state.value = _state.value.copy(loading = false, errorMessage = null, pokemon = it)
-                        Log.i("script2", it?.name ?: "aaa")
                     }
                     result.onFailure {
                         _state.value = _state.value.copy(loading = false, errorMessage = it)
