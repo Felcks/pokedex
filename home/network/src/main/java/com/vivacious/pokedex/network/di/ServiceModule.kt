@@ -13,6 +13,6 @@ import javax.inject.Singleton
 object ServiceModule {
     @Provides
     @Singleton
-    fun provideWallpaperService(@PokedexRetrofit retrofit: Retrofit): PokedexService =
+    fun providePokedexService(@PokedexRetrofit retrofit: Retrofit): PokedexService =
         retrofit.create(PokedexService::class.java)
 }
