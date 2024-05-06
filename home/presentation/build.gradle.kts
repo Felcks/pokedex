@@ -1,25 +1,19 @@
 plugins {
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.devtools.ksp")
     id("dagger.hilt.android.plugin")
 }
 
 android {
-    namespace = "com.vivacious.pokedex"
+    namespace = "com.vivacious.pokedex.presentation"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.vivacious.pokedex"
         minSdk = 24
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables {
-            useSupportLibrary = true
-        }
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
@@ -44,15 +38,9 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.10"
     }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -87,8 +75,6 @@ dependencies {
     implementation (libs.androidx.paging.compose)
 
     implementation(project(":core:presentation"))
-    implementation(project(":home:presentation"))
     implementation(project(":home:domain"))
     implementation(project(":home:domainImpl"))
-    implementation(project(":home:network"))
 }

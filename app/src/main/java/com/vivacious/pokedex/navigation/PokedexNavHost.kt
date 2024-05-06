@@ -4,10 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import com.vivacious.pokedex.home.HomeScreenNavigationRoute
-import com.vivacious.pokedex.home.homeScreen
-import com.vivacious.pokedex.pokemondetail.navigateToPokemonDetail
-import com.vivacious.pokedex.pokemondetail.pokemonDetail
+import com.vivacious.pokedex.presentation.home.HomeScreenNavigationRoute
+import com.vivacious.pokedex.presentation.home.homeScreen
+import com.vivacious.pokedex.presentation.pokemondetail.navigateToPokemonDetail
+import com.vivacious.pokedex.presentation.pokemondetail.pokemonDetail
 
 @Composable
 fun PokedexNavHost(modifier: Modifier = Modifier) {

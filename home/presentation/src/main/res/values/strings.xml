@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_scree_title">Pokedex</string>
+    <string name="try_again">Try again</string>
+    <string name="weight">Weight</string>
+    <string name="height">Height</string>
+    <string name="unexpected_error_message">Unexpected error</string>
+</resources>
