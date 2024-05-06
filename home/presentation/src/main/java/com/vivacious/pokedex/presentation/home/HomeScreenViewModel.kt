@@ -1,8 +1,5 @@
 package com.vivacious.pokedex.presentation.home
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -24,17 +21,13 @@ class HomeScreenViewModel @Inject constructor(
     private val _pokemons: MutableStateFlow<PagingData<PokemonSummary>> = MutableStateFlow(PagingData.empty())
     val pokemons = _pokemons.asStateFlow()
 
-    private var currentPage by mutableIntStateOf(0)
-
     fun handleScreenEvents(event: HomeScreenEvent) {
         when (event) {
             HomeScreenEvent.GetFreshPokemons -> {
-                currentPage = 0
                 loadPokemons()
 
             }
             HomeScreenEvent.LoadMorePokemons -> {
-                currentPage += 1
                 loadPokemons()
             }
         }

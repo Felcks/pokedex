@@ -198,25 +198,6 @@ private fun PokemonCardPreview() {
     }
 }
 
-val MOCK_POKEDEX = listOf<PokemonSummary>(
-    object : PokemonSummary {
-        override val name: String
-            get() = "bulbasaur"
-        override val url: String
-            get() = "https://pokeapi.co/api/v2/pokemon/1/"
-        override val image: String
-            get() = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png"
-    },
-    object : PokemonSummary {
-        override val name: String
-            get() = "charmander"
-        override val url: String
-            get() = "https://pokeapi.co/api/v2/pokemon/4/"
-        override val image: String
-            get() = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png"
-    }
-)
-
 @Composable
 fun TopBar(title: String, modifier: Modifier = Modifier) {
     Row(modifier = modifier) {
@@ -235,3 +216,23 @@ fun TopBarPreview() {
         TopBar(title = "Pokedex")
     }
 }
+
+
+val MOCK_POKEDEX = listOf<PokemonSummary>(
+    object : PokemonSummary {
+        override val name: String
+            get() = "bulbasaur"
+        override val url: String
+            get() = "https://pokeapi.co/api/v2/pokemon/1/"
+        override val image: String
+            get() = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png"
+    },
+    object : PokemonSummary {
+        override val name: String
+            get() = "charmander"
+        override val url: String
+            get() = "https://pokeapi.co/api/v2/pokemon/4/"
+        override val image: String
+            get() = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png"
+    }
+)
