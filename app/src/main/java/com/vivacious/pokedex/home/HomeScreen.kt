@@ -9,12 +9,10 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.Button
@@ -24,7 +22,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,24 +34,19 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.LifecycleEventEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import coil.compose.SubcomposeAsyncImage
 import com.vivacious.pokedex.R
 import com.vivacious.pokedex.TopBar
 import com.vivacious.pokedex.domain.models.PokemonSummary
-import com.vivacious.pokedex.domain.wrapper.Resource
 import com.vivacious.pokedex.ui.theme.PokedexTheme
 import kotlinx.coroutines.flow.flowOf
 
@@ -67,7 +59,9 @@ fun HomeScreen(
     val pokemons = homeScreenViewModel.pokemons.collectAsLazyPagingItems()
 
     LifecycleEventEffect(event = Lifecycle.Event.ON_CREATE) {
-        homeScreenViewModel.handleScreenEvents(HomeScreenEvent.GetFreshPokemons)
+        if (pokemons.itemCount == 0) {
+            homeScreenViewModel.handleScreenEvents(HomeScreenEvent.GetFreshPokemons)
+        }
     }
 
     Scaffold(
@@ -99,7 +93,12 @@ fun HomeScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Text( (pokemons.loadState.refresh as LoadState.Error).error.message ?: "Unexpected error", style = TextStyle(textAlign = TextAlign.Center), fontSize = 18.sp)
+                        Text(
+                            (pokemons.loadState.refresh as LoadState.Error).error.message
+                                ?: "Unexpected error",
+                            style = TextStyle(textAlign = TextAlign.Center),
+                            fontSize = 18.sp
+                        )
                         Box(modifier = Modifier.padding(vertical = 8.dp))
                         Button(onClick = { homeScreenViewModel.handleScreenEvents(HomeScreenEvent.GetFreshPokemons) }) {
                             Text(stringResource(id = R.string.try_again))
@@ -107,8 +106,13 @@ fun HomeScreen(
                     }
                 }
 
+
+
                 pokemons.itemCount > 0 -> {
-                    PokemonList(pokemons = pokemons, onPokemonClick = goToPokemonDetail)
+                    PokemonList(
+                        pokemons = pokemons,
+                        onPokemonClick = goToPokemonDetail,
+                    )
                 }
             }
         }
@@ -117,7 +121,11 @@ fun HomeScreen(
 
 
 @Composable
-fun PokemonList(pokemons: LazyPagingItems<PokemonSummary>, onPokemonClick: (pokemonUrl: String) -> Unit, modifier: Modifier = Modifier) {
+fun PokemonList(
+    pokemons: LazyPagingItems<PokemonSummary>,
+    onPokemonClick: (pokemonUrl: String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(16.dp),
@@ -130,8 +138,12 @@ fun PokemonList(pokemons: LazyPagingItems<PokemonSummary>, onPokemonClick: (poke
             key = pokemons.itemKey { it.hashCode() },
         ) { index: Int ->
             val pokemon = pokemons[index]
-            if(pokemon != null) {
-                PokemonCard(pokemonSummary = pokemon, onPokemonClick = onPokemonClick, modifier = Modifier)
+            if (pokemon != null) {
+                PokemonCard(
+                    pokemonSummary = pokemon,
+                    onPokemonClick = onPokemonClick,
+                    modifier = Modifier
+                )
             }
         }
     }
@@ -141,15 +153,23 @@ fun PokemonList(pokemons: LazyPagingItems<PokemonSummary>, onPokemonClick: (poke
 @Composable
 private fun PokemonListPreview() {
     MaterialTheme {
-        PokemonList(pokemons = flowOf(PagingData.from(MOCK_POKEDEX)).collectAsLazyPagingItems(), onPokemonClick = {})
+        PokemonList(
+            pokemons = flowOf(PagingData.from(MOCK_POKEDEX)).collectAsLazyPagingItems(),
+            onPokemonClick = {})
     }
 }
 
 @Composable
-fun PokemonCard(pokemonSummary: PokemonSummary,  onPokemonClick: (pokemonUrl: String) -> Unit, modifier: Modifier = Modifier) {
-    Card(modifier = modifier.background(Color.White).clickable {
-        onPokemonClick.invoke(pokemonSummary.url)
-    }) {
+fun PokemonCard(
+    pokemonSummary: PokemonSummary,
+    onPokemonClick: (pokemonUrl: String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(modifier = modifier
+        .background(Color.White)
+        .clickable {
+            onPokemonClick.invoke(pokemonSummary.url)
+        }) {
         Column {
             SubcomposeAsyncImage(
                 model = pokemonSummary.image,
